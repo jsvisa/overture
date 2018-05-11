@@ -18,6 +18,7 @@ import (
 
 type Server struct {
 	BindAddress string
+	HTTPAddress string
 
 	Dispatcher outbound.Dispatcher
 
@@ -104,9 +105,11 @@ func (s *Server) Run() {
 		}(p)
 	}
 
-	http.HandleFunc("/cache", s.DumpCache)
-	wg.Add(1)
-	go http.ListenAndServe(":5555", nil)
+	if s.HTTPAddress != "" {
+		http.HandleFunc("/cache", s.DumpCache)
+		wg.Add(1)
+		go http.ListenAndServe(s.HTTPAddress, nil)
+	}
 
 	wg.Wait()
 }
